@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculatrice de Limites</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.5.0/math.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .display {
+            font-size: 24px;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #ddd;
+            min-height: 30px;
+            text-align: right;
+        }
+        .keyboard, .number-keyboard {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px;
+            margin-top: 10px;
+        }
+        .keyboard button, .number-keyboard button {
+            padding: 15px;
+            font-size: 18px;
+            cursor: pointer;
+            border: none;
+            background: #007bff;
+            color: white;
+            border-radius: 5px;
+        }
+        .keyboard button:hover, .number-keyboard button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Calculatrice de Limites</h2>
+        <div class="display" id="display" onclick="focusExpression()"></div>
+        <label for="expression">Expression :</label>
+        <input type="text" id="expression" placeholder="ex: (x^2 - 1)/(x - 1)">
+        <label for="value">Tend vers :</label>
+        <input type="text" id="value" placeholder="ex: 1">
+        <button onclick="calculerLimite()">Calculer</button>
+        <h3>Résultat : <span id="result"></span></h3>
+        
+        <div class="keyboard">
+            <button onclick="ajouterSymbole('x')">x</button>
+            <button onclick="ajouterSymbole('^')">^</button>
+            <button onclick="ajouterSymbole('sqrt(')">√</button>
+            <button onclick="ajouterSymbole('∞')">∞</button>
+            <button onclick="ajouterSymbole('/')">/</button>
+            <button onclick="ajouterSymbole('*')">*</button>
+            <button onclick="ajouterSymbole('+')">+</button>
+            <button onclick="ajouterSymbole('-')">-</button>
+            <button onclick="ajouterSymbole('(')">(</button>
+            <button onclick="ajouterSymbole(')')">)</button>
+        </div>
+        
+        <div class="number-keyboard">
+            <button onclick="ajouterSymbole('7')">7</button>
+            <button onclick="ajouterSymbole('8')">8</button>
+            <button onclick="ajouterSymbole('9')">9</button>
+            <button onclick="ajouterSymbole('/')">/</button>
+            <button onclick="ajouterSymbole('4')">4</button>
+            <button onclick="ajouterSymbole('5')">5</button>
+            <button onclick="ajouterSymbole('6')">6</button>
+            <button onclick="ajouterSymbole('*')">*</button>
+            <button onclick="ajouterSymbole('1')">1</button>
+            <button onclick="ajouterSymbole('2')">2</button>
+            <button onclick="ajouterSymbole('3')">3</button>
+            <button onclick="ajouterSymbole('-')">-</button>
+            <button onclick="ajouterSymbole('0')">0</button>
+            <button onclick="ajouterSymbole('.')">.</button>
+            <button onclick="ajouterSymbole('(')">(</button>
+            <button onclick="ajouterSymbole('+')">+</button>
+        </div>
+    </div>
+
+    <script>
+        function calculerLimite() {
+            let expression = document.getElementById("expression").value;
+            let xValue = parseFloat(document.getElementById("value").value);
+            let resultElement = document.getElementById("result");
+            
+            try {
+                let expr = math.parse(expression).compile();
+                let directSubstitution = expr.evaluate({x: xValue});
+                
+                if (isNaN(directSubstitution) || !isFinite(directSubstitution)) {
+                    let leftLimit = expr.evaluate({x: xValue - 0.0001});
+                    let rightLimit = expr.evaluate({x: xValue + 0.0001});
+                    
+                    if (Math.abs(leftLimit - rightLimit) < 1e-3) {
+                        resultElement.textContent = "Limite approximative: " + leftLimit;
+                    } else {
+                        resultElement.textContent = "La limite ne semble pas exister.";
+                    }
+                } else {
+                    resultElement.textContent = "Limite: " + directSubstitution;
+                }
+            } catch (error) {
+                resultElement.textContent = "Erreur dans l'expression";
+            }
+        }
+        
+        function ajouterSymbole(symbole) {
+            let expressionInput = document.getElementById("expression");
+            expressionInput.value += symbole;
+            document.getElementById("display").textContent = expressionInput.value;
+        }
+        
+        function focusExpression() {
+            document.getElementById("expression").focus();
+        }
+    </script>
+</body>
+</html>
